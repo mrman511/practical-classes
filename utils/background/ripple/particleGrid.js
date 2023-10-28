@@ -73,27 +73,26 @@ export default class ParticleGrid{
       if (particle.radius === 0){
         particle.radius = particle.maxRadius;
       }
-      else if (particle.radius < .5){
+      else if (particle.radius < .3){
         particle.radius = 0;
         finishedParticleIndexes.push(i);
       } else {
-        particle.radius = (particle.radius - .25)
+        particle.radius = (particle.radius - particle.speed)
       }
       for (let i=0; i<finishedParticleIndexes.length; i++){
-
         this.activeParticles.splice(finishedParticleIndexes[i]-i, 1)
       }
     });
   }
 
-  fillGrid(maxRadius, colour){
+  fillGrid(maxRadius, colour, particleSpeed){
     let j=0;
     for (let row of Object.keys(this.grid)){
       if (this.grid[row].length < this.cols){
         for (let i=this.grid[row].length; i<this.cols; i++){
           let x = (this.colSpacing * (i + 1)) - (this.colSpacing/2);
           let y = (this.rowSpacing * (j + 1)) - (this.rowSpacing/2);
-          const particle = new Particle(x, y, maxRadius, colour);
+          const particle = new Particle(x, y, maxRadius, colour, this.isDynamic, particleSpeed);
           this.grid[row].push(particle);
           if (!this.isDynamic){
             this.activeParticles.push(particle);
@@ -136,18 +135,12 @@ export default class ParticleGrid{
   }
 
   continueRipple(growthRate){
-    // remove push to activeClicks after troubleshooting
-    // this.clickCount++
-    // if (this.clickCount === 1){
-    //   this.activeClicks.push({x: 10, y: 10, r: 5, maxRadius: 20})
-    // }
     const finishedClicks = [];
     this.activeClicks.map((click, i)=>{
-      if (click.r>(click.maxRadius)){
+      if ((click.r>=click.maxRadius )|| (click.r >= ((this.cols/2)-2))){
         finishedClicks.push(i);
       }else {
         click.r = click.r + growthRate;
-        // console.log('circle radius', click.r);
         for (let row in this.grid){
           //y is number of current row in grid
           const y = Number(row);
@@ -177,11 +170,10 @@ export default class ParticleGrid{
         }
       }
     })
-    // console.log('Continue Ripple: ', this.activeParticles);
     // remove all finished clicks
     for (let i=0;i<finishedClicks.length; i++){
-      finishedClicks.shift(finishedClicks[i]-i,1);
+      this.activeClicks.splice(finishedClicks[i]-i,1);
     }
-    this.setRadii(this.maxParticle)
+    this.setRadii()
   }
 }
