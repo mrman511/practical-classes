@@ -1,11 +1,16 @@
 export default class Particle {
 
-  constructor(x, y, maxRadius, colour){
+  constructor(x, y, maxRadius, colour, isDynamic ,speed){
     this._x = x;
     this._y = y;
     this._maxRadius=maxRadius;
-    this._radius = 0;
-    this._colour = colour;
+    this._radius = maxRadius;
+    this._colour = `rgba(${colour[0]}, ${colour[1]}, ${colour[2]}, ${ colour[3] })`;
+    
+    if (isDynamic){
+      this._speed = ((maxRadius-.2)/speed);
+      this._radius = 0;
+    }
   }
 
   get x(){
@@ -28,6 +33,9 @@ export default class Particle {
   }
   set colour(colour){
     this._colour=colour;
+  }
+  get speed(){
+    return this._speed;
   }
 
 }
